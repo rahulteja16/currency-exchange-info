@@ -74,19 +74,38 @@ const AddButton = styled.input`
   background-color: #3588e7;
 `;
 
-const CurrencyConverter = ({ selectedCountries, exchangeObj, index, onExchangeClick }) => {
+const DeleteButton = styled.input`
+  height: 30px;
+  width: 70px;
+  border-radius: 20px;
+  border: none;
+  color: #ffffff;
+  background-color: #dc6565;
+`;
+
+const CurrencyConverter = ({
+  selectedCountries,
+  exchangeObj,
+  idx,
+  onExchangeClick,
+  onAddExchange,
+  onDeleteExchange,
+}) => {
   const [fromCountriesArr, setFromCountries] = useState([...selectedCountries]);
   const [toCountriesArr, setToCountries] = useState([...selectedCountries]);
   const [selectedFromCurrency, setSelectedFromCurrency] = useState(exchangeObj.fromCurrency);
   const [selectedToCurrency, setSelectedToCurrency] = useState(exchangeObj.toCurrency);
+  const [showAdd, setShowAdd] = useState(true);
 
   const updateFromCountries = (e) => {
     setSelectedFromCurrency(e.target.value);
+    setSelectedToCurrency(toCountriesArr[0].key);
     setToCountries(selectedCountries.filter((item) => item.key !== e.target.value));
   };
 
   const updateToCountries = (e) => {
     setSelectedToCurrency(e.target.value);
+    setSelectedFromCurrency(fromCountriesArr[0].key);
     setFromCountries(selectedCountries.filter((item) => item.key !== e.target.value));
   };
 
@@ -102,10 +121,19 @@ const CurrencyConverter = ({ selectedCountries, exchangeObj, index, onExchangeCl
   const validateAmount = (e) => {
     let obj = {
       fromCurrency: selectedFromCurrency,
-      fromAmount: e.target.value,
+      fromAmount: e.target.value !== '' ? parseInt(e.target.value) : 0,
       toCurrency: selectedToCurrency,
     };
-    onExchangeClick(index, obj);
+    onExchangeClick(idx, obj);
+  };
+
+  const addConverter = () => {
+    setShowAdd(false);
+    onAddExchange();
+  };
+
+  const deleteConvert = () => {
+    onDeleteExchange(idx);
   };
 
   return (
@@ -143,11 +171,19 @@ const CurrencyConverter = ({ selectedCountries, exchangeObj, index, onExchangeCl
           />
         </InputWrapper>
         <InputWrapper>
-          <NumberInput type="number" placeholder="Amount" aria-label="Target Amount" disabled />
+          <NumberInput
+            type="number"
+            placeholder="Amount"
+            aria-label="Target Amount"
+            disabled
+            value={exchangeObj.toAmount}
+          />
         </InputWrapper>
       </RowDiv>
+
       <ButtonWrapper>
-        <AddButton type="button" value="Add" />
+        {showAdd && <AddButton type="button" value="Add" onClick={addConverter} />}
+        {!showAdd && <DeleteButton type="button" value="Delete" onClick={deleteConvert} />}
       </ButtonWrapper>
     </section>
   );

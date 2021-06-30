@@ -38,6 +38,7 @@ const reducer = (state, action) => {
         rates,
         exchange: [
           {
+            id: 'EUR-USD-0',
             fromCurrency: 'EUR',
             fromAmount: 0,
             toCurrency: 'USD',
@@ -46,6 +47,25 @@ const reducer = (state, action) => {
         ],
         status: 'idel',
       };
+    case CurrencyTypes.ADD_EXCHANGE:
+      const newExchange = { ...state };
+      newExchange.exchange = action.payload.exchange;
+      return newExchange;
+    case CurrencyTypes.DELETE_EXCHANGE:
+      const deleteExchange = { ...state };
+      deleteExchange.exchange = action.payload.exchange;
+      console.log(deleteExchange);
+      return deleteExchange;
+    case CurrencyTypes.UPDATE_EXCHANGE:
+      const updatedState = { ...state };
+      const { idx, exchangeObj } = action.payload;
+      updatedState.exchange.forEach((item) => {
+        if (item.id === idx) {
+          item.fromAmount = exchangeObj.fromAmount;
+          item.toAmount = exchangeObj.toAmount;
+        }
+      });
+      return updatedState;
     case CurrencyTypes.LOADING:
       return { ...state, status: 'loading' };
     default:
@@ -67,11 +87,18 @@ const Skelton = () => {
         let obj = {
           currency,
           value: `${data.symbols[currency]} - ${currency}`,
-          selected: currency === 'USD' || currency === 'EUR' || currency === 'INR' ? true : false,
+          selected:
+            currency === 'USD' ||
+            currency === 'EUR' ||
+            currency === 'INR' ||
+            currency === 'GBP' ||
+            currency === 'AUD'
+              ? true
+              : false,
         };
         countries.push(obj);
       }
-      const { data: conRes } = await axios.get(`${RATES_URL}&base=EUR&symbols=USD,INR`);
+      const { data: conRes } = await axios.get(`${RATES_URL}&base=EUR&symbols=USD,INR,GBP,AUD`);
       const rates = { ...conRes.rates };
       rates[conRes.base] = 1;
       dispatch({
@@ -86,8 +113,45 @@ const Skelton = () => {
   }
 
   const onExchange = (index, exchangeObj) => {
-    console.log(index);
-    console.log(exchangeObj);
+    const currencyBase = state.rates[exchangeObj.fromCurrency];
+    const inEuros = parseFloat(exchangeObj.fromAmount) / currencyBase;
+    const finalObj = { ...exchangeObj };
+    finalObj['toAmount'] = inEuros * state.rates[exchangeObj.toCurrency];
+    dispatch({
+      type: CurrencyTypes.UPDATE_EXCHANGE,
+      payload: {
+        exchangeObj: finalObj,
+        idx: index,
+      },
+    });
+  };
+
+  const onAddExchange = () => {
+    const currentExchange = [...state.exchange];
+    currentExchange.push({
+      id: `EUR-USD-${currentExchange.length}`,
+      fromCurrency: 'EUR',
+      fromAmount: 0,
+      toCurrency: 'USD',
+      toAmount: 0,
+    });
+    dispatch({
+      type: CurrencyTypes.ADD_EXCHANGE,
+      payload: {
+        exchange: currentExchange,
+      },
+    });
+  };
+
+  const onDeleteExchange = (idx) => {
+    const currentExchange = [...state.exchange];
+    currentExchange.splice(idx, 1);
+    dispatch({
+      type: CurrencyTypes.DELETE_EXCHANGE,
+      payload: {
+        exchange: currentExchange,
+      },
+    });
   };
 
   useEffect(() => {
@@ -102,6 +166,8 @@ const Skelton = () => {
         status={state.status}
         exchange={state.exchange}
         onExchangeClick={onExchange}
+        onAddExchange={onAddExchange}
+        onDeleteExchange={onDeleteExchange}
       />
       <AsideWrapper>
         <CurrencyList countries={state.countries} status={state.status} />

@@ -32,7 +32,15 @@ const LoaderWrapper = styled.div`
   height: 100%;
 `;
 
-const ExchangeList = ({ date, countries, status, exchange, onExchangeClick }) => {
+const ExchangeList = ({
+  date,
+  countries,
+  status,
+  exchange,
+  onExchangeClick,
+  onAddExchange,
+  onDeleteExchange,
+}) => {
   const selectedCountries = countries.filter((country) => country.selected);
   const updatedCountries = [];
   selectedCountries.forEach((country) => {
@@ -59,10 +67,13 @@ const ExchangeList = ({ date, countries, status, exchange, onExchangeClick }) =>
           {exchange.map((item, index) => {
             return (
               <CurrencyConverter
+                key={item.id}
                 selectedCountries={updatedCountries}
                 exchangeObj={item}
-                index
-                onExchangeClick
+                idx={item.id}
+                onExchangeClick={onExchangeClick}
+                onAddExchange={onAddExchange}
+                onDeleteExchange={onDeleteExchange}
               />
             );
           })}
