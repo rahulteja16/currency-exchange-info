@@ -2,7 +2,6 @@ import React, { useEffect, useReducer } from 'react';
 import styled from 'styled-components';
 import { CurrencyTypes } from './types';
 import { COUNTRIES_URL, RATES_URL } from './constants';
-import axios from 'axios';
 import ExchangeList from './components/ExchangeList';
 
 const SectionWrapper = styled.div`
@@ -62,73 +61,8 @@ const reducer = (state, action) => {
   }
 };
 
-// function updateCurreny(countries, query) {
-//   return async (dispatch) => {
-//     const { data: conRes } = await axios.get(`${RATES_URL}&base=EUR&symbols=${query}`);
-//     const rates = { ...conRes.rates };
-//     rates[conRes.base] = 1;
-//     dispatch({
-//       type: CurrencyTypes.FETCH_INITAL_DATA,
-//       payload: {
-//         countries,
-//         rates,
-//         date: new Date(conRes.date).toUTCString(),
-//       },
-//     });
-//   };
-// }
-
 const Skelton = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  // const cbFetchData = useCallback(() => {
-  //   return async (dispatch) => {
-  //     dispatch({
-  //       type: CurrencyTypes.LOADING,
-  //     });
-  //     // const { data } = await axios.get(COUNTRIES_URL);
-  //     const data = {
-  //       USD: 'America',
-  //       INR: 'India',
-  //     };
-  //     const countries = [];
-  //     // const symbols = Object.keys(data.symbols);
-  //     for (const currency in data.symbols) {
-  //       const obj = {
-  //         currency,
-  //         value: `${data.symbols[currency]} - ${currency}`,
-  //       };
-  //       countries.push(obj);
-  //     }
-  //     // const { data: conRes } = await axios.get(`${RATES_URL}&base=EUR&symbols=${symbols.join()}`);
-  //     const conRes = {
-  //       success: true,
-  //       timestamp: 1519296206,
-  //       base: 'EUR',
-  //       date: '2021-03-17',
-  //       rates: {
-  //         AUD: 1.566015,
-  //         CAD: 1.560132,
-  //         CHF: 1.154727,
-  //         CNY: 7.827874,
-  //         GBP: 0.882047,
-  //         JPY: 132.360679,
-  //         USD: 1.23396,
-  //       },
-  //     };
-
-  //     const rates = { ...conRes.rates };
-  //     rates[conRes.base] = 1;
-  //     dispatch({
-  //       type: CurrencyTypes.FETCH_INITAL_DATA,
-  //       payload: {
-  //         countries,
-  //         rates,
-  //         date: new Date(conRes.date).toUTCString(),
-  //       },
-  //     });
-  //   };
-  // }, []);
-
   const onExchange = (index, exchangeObj) => {
     const currencyBase = state.rates[exchangeObj.fromCurrency];
     const inEuros = parseFloat(exchangeObj.fromAmount) / currencyBase;
@@ -173,28 +107,32 @@ const Skelton = () => {
 
   useEffect(() => {
     const asyncDispatch = async () => {
+      const countries = [];
+      let symbols;
       dispatch({
         type: CurrencyTypes.LOADING,
       });
-      const { data } = await axios.get(COUNTRIES_URL);
-      const countries = [];
-      const symbols = Object.keys(data.symbols);
-      for (const currency in data.symbols) {
+
+      const countriesRes = await fetch(COUNTRIES_URL);
+      const countryData = await countriesRes.json();
+      symbols = Object.keys(countryData.symbols);
+      for (const currency in countryData.symbols) {
         const obj = {
           currency,
-          value: `${data.symbols[currency]} - ${currency}`,
+          value: `${countryData.symbols[currency]} - ${currency}`,
         };
         countries.push(obj);
       }
-      const { data: conRes } = await axios.get(`${RATES_URL}&base=EUR&symbols=${symbols.join()}`);
-      const rates = { ...conRes.rates };
-      rates[conRes.base] = 1;
+      const conversionRes = await fetch(`${RATES_URL}&base=EUR&symbols=${symbols.join()}`);
+      const conversionData = await conversionRes.json();
+      const rates = { ...conversionData.rates };
+      rates[conversionData.base] = 1;
       dispatch({
         type: CurrencyTypes.FETCH_INITAL_DATA,
         payload: {
           countries,
           rates,
-          date: new Date(conRes.date).toUTCString(),
+          date: new Date(conversionData.date).toUTCString(),
         },
       });
     };
