@@ -91,6 +91,7 @@ const CurrencyConverter = ({
   onAddExchange,
   onDeleteExchange,
 }) => {
+  // use Reducer
   const [fromCountriesArr, setFromCountries] = useState([...selectedCountries]);
   const [toCountriesArr, setToCountries] = useState([...selectedCountries]);
   const [selectedFromCurrency, setSelectedFromCurrency] = useState(exchangeObj.fromCurrency);

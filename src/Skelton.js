@@ -1,23 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import styled from 'styled-components';
 import { CurrencyTypes } from './types';
-import CurrencyList from './components/CurrencyList';
 import { COUNTRIES_URL, RATES_URL } from './constants';
 import axios from 'axios';
 import ExchangeList from './components/ExchangeList';
-import useReducerWithThunk from './hooks/useReducerWithThunk';
 
 const SectionWrapper = styled.div`
   display: flex;
-`;
-
-const AsideWrapper = styled.aside`
-  display: flex;
-  flex: 1;
-  flex-flow: column;
-  background-color: #384553;
-  overflow-y: auto;
-  height: 100vh;
 `;
 
 const initialState = {
@@ -45,7 +34,7 @@ const reducer = (state, action) => {
             toAmount: 0,
           },
         ],
-        status: 'idel',
+        status: 'idle',
       };
     case CurrencyTypes.ADD_EXCHANGE:
       const newExchange = { ...state };
@@ -73,44 +62,72 @@ const reducer = (state, action) => {
   }
 };
 
-const Skelton = () => {
-  const [state, dispatch] = useReducerWithThunk(reducer, initialState);
+// function updateCurreny(countries, query) {
+//   return async (dispatch) => {
+//     const { data: conRes } = await axios.get(`${RATES_URL}&base=EUR&symbols=${query}`);
+//     const rates = { ...conRes.rates };
+//     rates[conRes.base] = 1;
+//     dispatch({
+//       type: CurrencyTypes.FETCH_INITAL_DATA,
+//       payload: {
+//         countries,
+//         rates,
+//         date: new Date(conRes.date).toUTCString(),
+//       },
+//     });
+//   };
+// }
 
-  function fetchData() {
-    return async (dispatch) => {
-      dispatch({
-        type: CurrencyTypes.LOADING,
-      });
-      const { data } = await axios.get(COUNTRIES_URL);
-      const countries = [];
-      for (const currency in data.symbols) {
-        let obj = {
-          currency,
-          value: `${data.symbols[currency]} - ${currency}`,
-          selected:
-            currency === 'USD' ||
-            currency === 'EUR' ||
-            currency === 'INR' ||
-            currency === 'GBP' ||
-            currency === 'AUD'
-              ? true
-              : false,
-        };
-        countries.push(obj);
-      }
-      const { data: conRes } = await axios.get(`${RATES_URL}&base=EUR&symbols=USD,INR,GBP,AUD`);
-      const rates = { ...conRes.rates };
-      rates[conRes.base] = 1;
-      dispatch({
-        type: CurrencyTypes.FETCH_INITAL_DATA,
-        payload: {
-          countries,
-          rates,
-          date: new Date(conRes.date).toUTCString(),
-        },
-      });
-    };
-  }
+const Skelton = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  // const cbFetchData = useCallback(() => {
+  //   return async (dispatch) => {
+  //     dispatch({
+  //       type: CurrencyTypes.LOADING,
+  //     });
+  //     // const { data } = await axios.get(COUNTRIES_URL);
+  //     const data = {
+  //       USD: 'America',
+  //       INR: 'India',
+  //     };
+  //     const countries = [];
+  //     // const symbols = Object.keys(data.symbols);
+  //     for (const currency in data.symbols) {
+  //       const obj = {
+  //         currency,
+  //         value: `${data.symbols[currency]} - ${currency}`,
+  //       };
+  //       countries.push(obj);
+  //     }
+  //     // const { data: conRes } = await axios.get(`${RATES_URL}&base=EUR&symbols=${symbols.join()}`);
+  //     const conRes = {
+  //       success: true,
+  //       timestamp: 1519296206,
+  //       base: 'EUR',
+  //       date: '2021-03-17',
+  //       rates: {
+  //         AUD: 1.566015,
+  //         CAD: 1.560132,
+  //         CHF: 1.154727,
+  //         CNY: 7.827874,
+  //         GBP: 0.882047,
+  //         JPY: 132.360679,
+  //         USD: 1.23396,
+  //       },
+  //     };
+
+  //     const rates = { ...conRes.rates };
+  //     rates[conRes.base] = 1;
+  //     dispatch({
+  //       type: CurrencyTypes.FETCH_INITAL_DATA,
+  //       payload: {
+  //         countries,
+  //         rates,
+  //         date: new Date(conRes.date).toUTCString(),
+  //       },
+  //     });
+  //   };
+  // }, []);
 
   const onExchange = (index, exchangeObj) => {
     const currencyBase = state.rates[exchangeObj.fromCurrency];
@@ -155,8 +172,36 @@ const Skelton = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchData());
-  }, []);
+    const asyncDispatch = async () => {
+      dispatch({
+        type: CurrencyTypes.LOADING,
+      });
+      const { data } = await axios.get(COUNTRIES_URL);
+      const countries = [];
+      const symbols = Object.keys(data.symbols);
+      for (const currency in data.symbols) {
+        const obj = {
+          currency,
+          value: `${data.symbols[currency]} - ${currency}`,
+        };
+        countries.push(obj);
+      }
+      const { data: conRes } = await axios.get(`${RATES_URL}&base=EUR&symbols=${symbols.join()}`);
+      const rates = { ...conRes.rates };
+      rates[conRes.base] = 1;
+      dispatch({
+        type: CurrencyTypes.FETCH_INITAL_DATA,
+        payload: {
+          countries,
+          rates,
+          date: new Date(conRes.date).toUTCString(),
+        },
+      });
+    };
+    if (state.countries.length === 0) {
+      asyncDispatch();
+    }
+  }, [state.countries.length, dispatch]);
 
   return (
     <SectionWrapper>
@@ -169,9 +214,6 @@ const Skelton = () => {
         onAddExchange={onAddExchange}
         onDeleteExchange={onDeleteExchange}
       />
-      <AsideWrapper>
-        <CurrencyList countries={state.countries} status={state.status} />
-      </AsideWrapper>
     </SectionWrapper>
   );
 };

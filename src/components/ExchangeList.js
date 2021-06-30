@@ -41,9 +41,8 @@ const ExchangeList = ({
   onAddExchange,
   onDeleteExchange,
 }) => {
-  const selectedCountries = countries.filter((country) => country.selected);
   const updatedCountries = [];
-  selectedCountries.forEach((country) => {
+  countries.forEach((country) => {
     let obj = {
       key: country.currency,
       value: country.value,
@@ -60,7 +59,7 @@ const ExchangeList = ({
         </LoaderWrapper>
       )}
 
-      {status === 'idel' && (
+      {status === 'idle' && (
         <Section>
           <H2Title>Currency Converter</H2Title>
           <H3Date>{date}</H3Date>

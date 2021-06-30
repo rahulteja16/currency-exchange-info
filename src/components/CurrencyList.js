@@ -55,13 +55,16 @@ const LoaderWrapper = styled.div`
   height: 90vh;
 `;
 
-const CurrencyList = ({ countries, status }) => {
-  const onCheckBoxClick = (e) => {
-    e.preventDefault();
+const CurrencyList = ({ countries, status, onSubmit }) => {
+  const onCheckBoxClick = (country) => {
+    country.selected = !country.selected;
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    onSubmit(countries);
   };
+
   return (
     <section>
       <HeadingWrapper>
@@ -75,7 +78,7 @@ const CurrencyList = ({ countries, status }) => {
         </LoaderWrapper>
       )}
 
-      {status === 'idel' && (
+      {status === 'idle' && (
         <form onSubmit={handleSubmit}>
           <UL>
             {countries &&
@@ -88,7 +91,7 @@ const CurrencyList = ({ countries, status }) => {
                         defaultChecked={country.selected}
                         value={country.selected}
                         name={country.currency}
-                        onChange={onCheckBoxClick}
+                        onChange={() => onCheckBoxClick(country)}
                       />
                       <H5>{country.value}</H5>
                     </ItemRow>
