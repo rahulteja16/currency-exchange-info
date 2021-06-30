@@ -37,8 +37,9 @@ const ExchangeList = ({ date, countries, status, exchange, onExchangeClick }) =>
   const updatedCountries = [];
   selectedCountries.forEach((country) => {
     let obj = {
-      key: country.currency,
-      value: country.value,
+      id: country.id,
+      key: country.code,
+      value: country.name,
     };
     updatedCountries.push(obj);
   });
@@ -59,9 +60,9 @@ const ExchangeList = ({ date, countries, status, exchange, onExchangeClick }) =>
           {exchange.map((item, index) => {
             return (
               <CurrencyConverter
+                key={index}
                 selectedCountries={updatedCountries}
                 exchangeObj={item}
-                index
                 onExchangeClick
               />
             );

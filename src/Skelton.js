@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { CurrencyTypes } from './types';
 import CurrencyList from './components/CurrencyList';
-import { COUNTRIES_URL, RATES_URL } from './constants';
+import { API_KEY, COUNTRIES_URL, RATES_URL } from './constants';
 import axios from 'axios';
 import ExchangeList from './components/ExchangeList';
 import useReducerWithThunk from './hooks/useReducerWithThunk';
@@ -61,25 +61,43 @@ const Skelton = () => {
       dispatch({
         type: CurrencyTypes.LOADING,
       });
-      const { data } = await axios.get(COUNTRIES_URL);
+      const { data } = await axios.get(COUNTRIES_URL, {
+        headers: {
+          Authorization: `ApiKey ${API_KEY}`,
+        },
+      });
       const countries = [];
-      for (const currency in data.symbols) {
+      for (const currency of data) {
         let obj = {
-          currency,
-          value: `${data.symbols[currency]} - ${currency}`,
-          selected: currency === 'USD' || currency === 'EUR' || currency === 'INR' ? true : false,
+          id: currency.numeric_code,
+          code: currency.code,
+          name: `${currency.name} - ${currency.code}`,
+          selected:
+            currency.code === 'USD' || currency.code === 'EUR' || currency.code === 'INR'
+              ? true
+              : false,
         };
         countries.push(obj);
       }
-      const { data: conRes } = await axios.get(`${RATES_URL}&base=EUR&symbols=USD,INR`);
-      const rates = { ...conRes.rates };
-      rates[conRes.base] = 1;
+      const { data: convRes } = await axios.get(
+        `${RATES_URL}base_currency=EUR&quote_currencies=USD,INR`,
+        {
+          headers: {
+            Authorization: `ApiKey ${API_KEY}`,
+          },
+        }
+      );
+      const rates = {};
+      for (let conv in convRes) {
+        rates[convRes[conv].quote_currency] = convRes[conv].quote;
+      }
+      rates[convRes[0].base_currency] = 1;
       dispatch({
         type: CurrencyTypes.FETCH_INITAL_DATA,
         payload: {
           countries,
           rates,
-          date: new Date(conRes.date).toUTCString(),
+          date: new Date(convRes[0].date).toUTCString(),
         },
       });
     };

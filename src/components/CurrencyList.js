@@ -81,16 +81,16 @@ const CurrencyList = ({ countries, status }) => {
             {countries &&
               countries.map((country) => {
                 return (
-                  <LI key={country.currency}>
+                  <LI key={country.id}>
                     <ItemRow>
                       <input
                         type="checkbox"
                         defaultChecked={country.selected}
-                        value={country.selected}
-                        name={country.currency}
+                        value={country.code}
+                        name={country.code}
                         onChange={onCheckBoxClick}
                       />
-                      <H5>{country.value}</H5>
+                      <H5>{country.name}</H5>
                     </ItemRow>
                   </LI>
                 );

@@ -26,12 +26,7 @@ const SelectWrapper = styled.select`
 const CustomDropDown = ({ label, items, keyVal, selectedValue, onSelect }) => (
   <Wrapper>
     <LabelWrapper htmlFor={keyVal}>{label}</LabelWrapper>
-    <SelectWrapper
-      name={keyVal}
-      value={selectedValue}
-      onChange={onSelect}
-      defaultValue={selectedValue}
-    >
+    <SelectWrapper name={keyVal} onChange={onSelect} defaultValue={selectedValue}>
       <option key="default" disabled>
         Please Select
       </option>
