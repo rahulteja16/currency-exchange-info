@@ -57,6 +57,23 @@ const reducer = (state, action) => {
       return updatedState;
     case CurrencyTypes.LOADING:
       return { ...state, status: 'loading' };
+    case CurrencyTypes.UPDATE_DATE:
+      return { ...state, status: 'updating' };
+    case CurrencyTypes.UPDATE_EXCHANGE_DATE:
+      const updateExchangeDate = { ...state };
+      updateExchangeDate.status = 'idle';
+      updateExchangeDate.rates = action.payload.rates;
+      updateExchangeDate.date = action.payload.date;
+      updateExchangeDate.exchange = [
+        {
+          id: 'EUR-USD-0',
+          fromCurrency: 'EUR',
+          fromAmount: 0,
+          toCurrency: 'USD',
+          toAmount: 0,
+        },
+      ];
+      return updateExchangeDate;
     default:
       return state;
   }
@@ -75,6 +92,36 @@ const Skelton = () => {
       payload: {
         exchangeObj: finalObj,
         idx: index,
+      },
+    });
+  };
+
+  const onUpdateDate = async (date) => {
+    dispatch({
+      type: CurrencyTypes.UPDATE_DATE,
+    });
+    const symbols = [];
+    state.countries.map((country) => symbols.push(country.code));
+
+    const conversionRes = await fetch(
+      `${RATES_URL}date=${date}&base_currency=EUR&quote_currencies=${symbols.join()}`,
+      {
+        headers: {
+          Authorization: `ApiKey ${API_KEY}`,
+        },
+      }
+    );
+    const conversionData = await conversionRes.json();
+    const rates = {};
+    for (let conv in conversionData) {
+      rates[conversionData[conv].quote_currency] = conversionData[conv].quote;
+    }
+    rates[conversionData[0].base_currency] = 1;
+    dispatch({
+      type: CurrencyTypes.UPDATE_EXCHANGE_DATE,
+      payload: {
+        rates,
+        date: conversionData[0].date,
       },
     });
   };
@@ -140,6 +187,7 @@ const Skelton = () => {
         }
       );
       const conversionData = await conversionRes.json();
+      console.log(conversionData);
       const rates = {};
       for (let conv in conversionData) {
         rates[conversionData[conv].quote_currency] = conversionData[conv].quote;
@@ -150,7 +198,7 @@ const Skelton = () => {
         payload: {
           countries,
           rates,
-          date: new Date(conversionData.date).toUTCString(),
+          date: conversionData[0].date,
         },
       });
     };
@@ -169,6 +217,7 @@ const Skelton = () => {
         onExchangeClick={onExchange}
         onAddExchange={onAddExchange}
         onDeleteExchange={onDeleteExchange}
+        onUpdateDate={onUpdateDate}
       />
     </SectionWrapper>
   );

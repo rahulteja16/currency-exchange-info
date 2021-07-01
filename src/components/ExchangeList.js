@@ -1,15 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import CurrencyConverter from './CurrencyCoverter';
 import PropTypes from 'prop-types';
 import Header from './Header';
 import { Loader } from '../shared/Loader';
 
-const H3Date = styled.h3`
-  font-size: 12px;
-  margin-top: 2px;
-  color: #90959a;
-  letter-spacing: 0.3px;
+const DatePicker = styled.input`
+  height: 30px;
+  margin-top: 10px;
+  width: 200px;
+  border: none;
+  border-bottom: 1px solid #727e89;
+  color: #727e89;
+  font-size: 15px;
+  &:focus {
+    outline: thin dotted;
+    color: #727e89;
+  }
 `;
 
 const H2Title = styled.h2`
@@ -29,7 +36,7 @@ const Section = styled.section`
 
 const LoaderWrapper = styled.div`
   position: relative;
-  height: 100%;
+  height: 100vh;
 `;
 
 const ExchangeList = ({
@@ -40,7 +47,9 @@ const ExchangeList = ({
   onExchangeClick,
   onAddExchange,
   onDeleteExchange,
+  onUpdateDate,
 }) => {
+  const [selectedDate, setSelectedDate] = useState(date);
   const updatedCountries = [];
   countries.forEach((country) => {
     let obj = {
@@ -50,6 +59,11 @@ const ExchangeList = ({
     };
     updatedCountries.push(obj);
   });
+
+  const updateDate = (e) => {
+    setSelectedDate(e.target.value);
+    onUpdateDate(e.target.value);
+  };
 
   return (
     <MainWrapper>
@@ -63,7 +77,7 @@ const ExchangeList = ({
       {status === 'idle' && (
         <Section>
           <H2Title>Currency Converter</H2Title>
-          <H3Date>{date}</H3Date>
+          <DatePicker type="date" value={selectedDate} onChange={updateDate} max={date} />
           {exchange.map((item) => {
             return (
               <CurrencyConverter
@@ -77,6 +91,15 @@ const ExchangeList = ({
               />
             );
           })}
+        </Section>
+      )}
+
+      {status === 'updating' && (
+        <Section>
+          <H2Title>Currency Converter</H2Title>
+          <LoaderWrapper>
+            <Loader />
+          </LoaderWrapper>
         </Section>
       )}
     </MainWrapper>

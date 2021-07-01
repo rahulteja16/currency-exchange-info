@@ -21,6 +21,10 @@ const SelectWrapper = styled.select`
   border-bottom: 1px solid black;
   padding-bottom: 10px;
   padding-top: 2px;
+  &:focus {
+    outline: thin dotted;
+    color: #727e89;
+  }
 `;
 
 const CustomDropDown = ({ label, items, keyVal, selectedValue, onSelect }) => (

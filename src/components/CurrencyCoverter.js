@@ -218,7 +218,6 @@ const CurrencyConverter = ({
   };
 
   const validateAmount = (e) => {
-    console.log(e.target.value);
     let obj = {
       fromCurrency: convertState.selectedFromCurrency,
       fromAmount: e.target.value !== '' ? parseInt(e.target.value) : 0,
@@ -240,7 +239,7 @@ const CurrencyConverter = ({
   const deleteConvert = () => {
     onDeleteExchange(idx);
   };
-  console.log(convertState);
+
   return (
     <section>
       <RowDiv padding="3% 0 0 0">
