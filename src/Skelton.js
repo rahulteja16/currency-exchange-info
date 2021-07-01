@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer } from 'react';
 import styled from 'styled-components';
 import { CurrencyTypes } from './types';
-import { COUNTRIES_URL, RATES_URL } from './constants';
+import { API_KEY, COUNTRIES_URL, RATES_URL } from './constants';
 import ExchangeList from './components/ExchangeList';
 
 const SectionWrapper = styled.div`
@@ -107,26 +107,42 @@ const Skelton = () => {
 
   useEffect(() => {
     const asyncDispatch = async () => {
-      const countries = [];
-      let symbols;
       dispatch({
         type: CurrencyTypes.LOADING,
       });
 
-      const countriesRes = await fetch(COUNTRIES_URL);
+      const countriesRes = await fetch(COUNTRIES_URL, {
+        headers: {
+          Authorization: `ApiKey ${API_KEY}`,
+        },
+      });
       const countryData = await countriesRes.json();
-      symbols = Object.keys(countryData.symbols);
-      for (const currency in countryData.symbols) {
+      const activeCountryData = countryData.filter((item) => item.active);
+      const countries = [];
+      const symbols = [];
+      for (const currency of activeCountryData) {
+        symbols.push(currency.code);
         const obj = {
-          currency,
-          value: `${countryData.symbols[currency]} - ${currency}`,
+          code: currency.code,
+          id: currency.numeric_code,
+          name: `${currency.name} - ${currency.code}`,
         };
         countries.push(obj);
       }
-      const conversionRes = await fetch(`${RATES_URL}&base=EUR&symbols=${symbols.join()}`);
+      const conversionRes = await fetch(
+        `${RATES_URL}&base_currency=EUR&quote_currencies=${symbols.join()}`,
+        {
+          headers: {
+            Authorization: `ApiKey ${API_KEY}`,
+          },
+        }
+      );
       const conversionData = await conversionRes.json();
-      const rates = { ...conversionData.rates };
-      rates[conversionData.base] = 1;
+      const rates = {};
+      for (let conv in conversionData) {
+        rates[conversionData[conv].quote_currency] = conversionData[conv].quote;
+      }
+      rates[conversionData[0].base_currency] = 1;
       dispatch({
         type: CurrencyTypes.FETCH_INITAL_DATA,
         payload: {

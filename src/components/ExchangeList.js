@@ -44,11 +44,14 @@ const ExchangeList = ({
   const updatedCountries = [];
   countries.forEach((country) => {
     let obj = {
-      key: country.currency,
-      value: country.value,
+      key: country.code,
+      value: country.name,
+      id: country.id,
     };
     updatedCountries.push(obj);
   });
+
+  console.log(updatedCountries);
 
   return (
     <MainWrapper>
@@ -63,7 +66,7 @@ const ExchangeList = ({
         <Section>
           <H2Title>Currency Converter</H2Title>
           <H3Date>{date}</H3Date>
-          {exchange.map((item, index) => {
+          {exchange.map((item) => {
             return (
               <CurrencyConverter
                 key={item.id}
