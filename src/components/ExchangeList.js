@@ -51,8 +51,6 @@ const ExchangeList = ({
     updatedCountries.push(obj);
   });
 
-  console.log(updatedCountries);
-
   return (
     <MainWrapper>
       <Header />

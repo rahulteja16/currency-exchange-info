@@ -42,15 +42,16 @@ const reducer = (state, action) => {
     case CurrencyTypes.DELETE_EXCHANGE:
       const deleteExchange = { ...state };
       deleteExchange.exchange = action.payload.exchange;
-      console.log(deleteExchange);
       return deleteExchange;
     case CurrencyTypes.UPDATE_EXCHANGE:
       const updatedState = { ...state };
       const { idx, exchangeObj } = action.payload;
       updatedState.exchange.forEach((item) => {
         if (item.id === idx) {
+          item.fromCurrency = exchangeObj.fromCurrency;
           item.fromAmount = exchangeObj.fromAmount;
           item.toAmount = exchangeObj.toAmount;
+          item.toCurrency = exchangeObj.toCurrency;
         }
       });
       return updatedState;
@@ -63,6 +64,7 @@ const reducer = (state, action) => {
 
 const Skelton = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
+
   const onExchange = (index, exchangeObj) => {
     const currencyBase = state.rates[exchangeObj.fromCurrency];
     const inEuros = parseFloat(exchangeObj.fromAmount) / currencyBase;

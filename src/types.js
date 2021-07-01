@@ -6,3 +6,11 @@ export const CurrencyTypes = {
   ADD_EXCHANGE: 'exchange/add',
   DELETE_EXCHANGE: 'exchange/delete',
 };
+
+export const ConvertTypes = {
+  INITIAL_DATA: 'convert/initial',
+  UPDATE_FROM_COUNTRIES: 'update/country/from',
+  UPDATE_TO_COUNTRIES: 'update/country/to',
+  SWITCH: 'convert/switch',
+  TOGGLE_ADD: 'convert/toggle',
+};
