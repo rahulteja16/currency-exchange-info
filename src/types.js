@@ -2,6 +2,7 @@ export const CurrencyTypes = {
   FETCH_COUNTRIES: 'countries/fetch',
   FETCH_INITAL_DATA: 'initial/fetch',
   FETCH_LOADING: 'loading',
+  ERROR: 'error',
   UPDATE_DATE: 'update/date',
   UPDATE_EXCHANGE_DATE: 'update/date/exchange',
   UPDATE_EXCHANGE: 'exchange/update',

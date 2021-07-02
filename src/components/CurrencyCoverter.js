@@ -1,10 +1,16 @@
-import { faRandom } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useReducer } from 'react';
+import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
+import PropTypes from 'prop-types';
 
-import CustomDropDown from '../shared/CustomDropdown';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRandom } from '@fortawesome/free-solid-svg-icons';
+
+import { Store } from '../store';
+
 import { ConvertTypes } from '../types';
+import { ARIA, CONVERTER } from '../constants';
+
+import CustomDropDown from './CustomDropdown';
 
 const RowDiv = styled.div`
   display: flex;
@@ -83,56 +89,6 @@ const DeleteButton = styled.input`
   color: #ffffff;
   background-color: #dc6565;
 `;
-const initialState = {
-  fromCountries: [],
-  toCountries: [],
-  selectedFromCurrency: '',
-  selectedFromAmount: 0,
-  selectedToCurrency: '',
-  selectedToAmount: 0,
-  showAdd: true,
-};
-
-const convertReducer = (state, action) => {
-  switch (action.type) {
-    case ConvertTypes.INITIAL_DATA:
-      const { selectedCountries, exchangeObj } = action.payload;
-      const toCountries = selectedCountries.filter((item) => item.key !== exchangeObj.fromCurrency);
-      const fromCountries = selectedCountries.filter((item) => item.key !== exchangeObj.toCurrency);
-      return {
-        fromCountries: [...fromCountries],
-        toCountries: [...toCountries],
-        selectedFromCurrency: exchangeObj.fromCurrency,
-        selectedToCurrency: exchangeObj.toCurrency,
-        selectedFromAmount: exchangeObj.fromAmount,
-        selectedToAmount: exchangeObj.toAmount,
-        showAdd: true,
-      };
-    case ConvertTypes.UPDATE_FROM_COUNTRIES:
-      const { toCountries: updatedToCountries, selectedFromCurrency: updatedFromCurrencyVal } =
-        action.payload;
-      const fromUpdatedState = { ...state };
-      fromUpdatedState.toCountries = updatedToCountries;
-      fromUpdatedState.selectedFromCurrency = updatedFromCurrencyVal;
-      return fromUpdatedState;
-    case ConvertTypes.UPDATE_TO_COUNTRIES:
-      const { fromCountries: updatedFromCountries, selectedToCurrency: updatedToCurrencyVal } =
-        action.payload;
-      const toUpdatedState = { ...state };
-      toUpdatedState.fromCountries = updatedFromCountries;
-      toUpdatedState.selectedToCurrency = updatedToCurrencyVal;
-      return toUpdatedState;
-    case ConvertTypes.SWITCH:
-      const { switchObj } = action.payload;
-      return switchObj;
-    case ConvertTypes.TOGGLE_ADD:
-      const newState = { ...state };
-      newState.showAdd = action.payload.status;
-      return newState;
-    default:
-      return state;
-  }
-};
 
 const CurrencyConverter = ({
   selectedCountries,
@@ -142,17 +98,27 @@ const CurrencyConverter = ({
   onAddExchange,
   onDeleteExchange,
 }) => {
-  const [convertState, dispatch] = useReducer(convertReducer, initialState);
+  const {
+    state: { convert: convertState },
+    dispatch,
+  } = useContext(Store);
+
+  console.log(exchangeObj);
 
   useEffect(() => {
-    dispatch({
-      type: ConvertTypes.INITIAL_DATA,
-      payload: {
-        selectedCountries,
-        exchangeObj,
-      },
-    });
-  }, [dispatch, exchangeObj, selectedCountries]);
+    if (
+      convertState.selectedFromAmount !== exchangeObj.fromAmount ||
+      convertState.toCountries.length === 0
+    ) {
+      dispatch({
+        type: ConvertTypes.INITIAL_DATA,
+        payload: {
+          selectedCountries,
+          exchangeObj,
+        },
+      });
+    }
+  }, [dispatch, exchangeObj, selectedCountries, convertState]);
 
   const updateFromCountries = (e) => {
     dispatch({
@@ -165,7 +131,7 @@ const CurrencyConverter = ({
     let obj = {
       fromCurrency: e.target.value,
       fromAmount:
-        convertState.selectedFromAmount !== '' ? parseInt(convertState.selectedFromAmount) : 0,
+        convertState.selectedFromAmount !== '' ? parseFloat(convertState.selectedFromAmount) : 0,
       toCurrency: convertState.selectedToCurrency,
     };
     onExchangeClick(idx, obj);
@@ -183,7 +149,7 @@ const CurrencyConverter = ({
     let obj = {
       fromCurrency: convertState.selectedFromCurrency,
       fromAmount:
-        convertState.selectedFromAmount !== '' ? parseInt(convertState.selectedFromAmount) : 0,
+        convertState.selectedFromAmount !== '' ? parseFloat(convertState.selectedFromAmount) : 0,
       toCurrency: e.target.value,
     };
     onExchangeClick(idx, obj);
@@ -199,28 +165,29 @@ const CurrencyConverter = ({
       fromCountries,
     } = convertState;
 
-    const switchObj = {
-      fromCountries: toCountries,
-      toCountries: fromCountries,
-      selectedFromCurrency: selectedToCurrency,
-      selectedFromAmount: selectedToAmount,
-      selectedToCurrency: selectedFromCurrency,
-      selectedToAmount: selectedFromAmount,
-      showAdd: true,
-    };
-
     dispatch({
       type: ConvertTypes.SWITCH,
       payload: {
-        switchObj,
+        fromCountries: toCountries,
+        toCountries: fromCountries,
+        selectedFromCurrency: selectedToCurrency,
+        selectedFromAmount: selectedToAmount,
+        selectedToCurrency: selectedFromCurrency,
+        selectedToAmount: selectedFromAmount,
+        showAdd: true,
       },
     });
   };
 
   const validateAmount = (e) => {
+    let val = e.target.value
+      .toString()
+      .split('.')
+      .map((el, i) => (i ? el.split('').slice(0, 2).join('') : el))
+      .join('.');
     let obj = {
       fromCurrency: convertState.selectedFromCurrency,
-      fromAmount: e.target.value !== '' ? parseInt(e.target.value) : 0,
+      fromAmount: val !== '' ? val : 0,
       toCurrency: convertState.selectedToCurrency,
     };
     onExchangeClick(idx, obj);
@@ -231,6 +198,7 @@ const CurrencyConverter = ({
       type: ConvertTypes.TOGGLE_ADD,
       payload: {
         status: false,
+        id: convertState.id,
       },
     });
     onAddExchange();
@@ -244,22 +212,24 @@ const CurrencyConverter = ({
     <section>
       <RowDiv padding="3% 0 0 0">
         <CustomDropDown
-          keyVal="ConvertFrom"
-          label="From"
+          keyVal={CONVERTER.fromKey}
+          aria-label={ARIA.fromCurrency}
+          label={CONVERTER.fromLabel}
           items={convertState.fromCountries}
           onSelect={updateFromCountries}
           selectedValue={convertState.selectedFromCurrency}
         />
-        <Exchange role="button" onClick={onSwitch}>
-          <ExchangeButton aria-label="Exchange">
+        <Exchange role="button" onClick={onSwitch} tabindex="0">
+          <ExchangeButton aria-label={ARIA.exchange}>
             <Icon>
               <FontAwesomeIcon icon={faRandom} />
             </Icon>
           </ExchangeButton>
         </Exchange>
         <CustomDropDown
-          keyVal="ConvertTo"
-          label="To"
+          keyVal={CONVERTER.toKey}
+          label={CONVERTER.toLabel}
+          aria-label={ARIA.toCurrency}
           items={convertState.toCountries}
           onSelect={updateToCountries}
           selectedValue={convertState.selectedToCurrency}
@@ -269,17 +239,18 @@ const CurrencyConverter = ({
         <InputWrapper>
           <NumberInput
             type="number"
-            placeholder="Enter Amount"
-            aria-label="Enter Source Amount"
+            aria-label={ARIA.sourceAmount}
             onChange={validateAmount}
+            min={0}
             value={convertState.selectedFromAmount}
+            step="0.01"
           />
         </InputWrapper>
         <InputWrapper>
           <NumberInput
             type="number"
-            placeholder="Amount"
-            aria-label="Target Amount"
+            min={0}
+            aria-label={ARIA.targetAmount}
             disabled
             value={convertState.selectedToAmount}
           />
@@ -287,13 +258,36 @@ const CurrencyConverter = ({
       </RowDiv>
 
       <ButtonWrapper>
-        {convertState.showAdd && <AddButton type="button" value="Add" onClick={addConverter} />}
+        {convertState.showAdd && (
+          <AddButton type="button" value={CONVERTER.add} onClick={addConverter} />
+        )}
         {!convertState.showAdd && (
-          <DeleteButton type="button" value="Delete" onClick={deleteConvert} />
+          <DeleteButton type="button" value={CONVERTER.delete} onClick={deleteConvert} />
         )}
       </ButtonWrapper>
     </section>
   );
+};
+
+CurrencyConverter.propTypes = {
+  selectedCountries: PropTypes.arrayOf(
+    PropTypes.shape({
+      code: PropTypes.string,
+      id: PropTypes.string,
+      name: PropTypes.string,
+    })
+  ),
+  idx: PropTypes.string.isRequired,
+  onExchangeClick: PropTypes.func.isRequired,
+  onAddExchange: PropTypes.func.isRequired,
+  onDeleteExchange: PropTypes.func.isRequired,
+  exchangeObj: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    fromCurrency: PropTypes.string.isRequired,
+    fromAmount: PropTypes.number.isRequired,
+    toCurrency: PropTypes.string.isRequired,
+    toAmount: PropTypes.number.isRequired,
+  }),
 };
 
 export default CurrencyConverter;

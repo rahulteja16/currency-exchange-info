@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Logo from '../assets/logo.jpeg';
+import { MAIN_HEADING } from '../constants';
 
 const HeaderWrapper = styled.header`
   display: flex;
@@ -35,7 +36,7 @@ const Header = () => {
   return (
     <HeaderWrapper>
       <Heading>
-        <Image alt="Logo" src={Logo} />
+        <Image alt={MAIN_HEADING} src={Logo} />
       </Heading>
       <Nav>
         <Anchor href="/">Home</Anchor>

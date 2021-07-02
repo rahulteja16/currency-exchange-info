@@ -1,70 +1,106 @@
-# Getting Started with Create React App
+Following assumptions & code choices have been made in this assignment subject to discussion.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Viewing the application
 
-## Available Scripts
+- The application has been deployed and can be visited here - [currency-exchange-info](https://currency-exchange-info.netlify.app/)
 
-In the project directory, you can run:
+## Running the application
 
-### `yarn start`
+- This app is built with `create-react-app` boiler plate.
+- To Run the app, follow
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```
+yarn install
+yarn start
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- Verify test cases and code coverage with
 
-### `yarn test`
+```
+yarn test
+yarn test -- --coverage
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## API Assumptions
 
-### `yarn build`
+- To obtain currency exchange data, open API from [swop.cx](https://swop.cx/) used as [ratesapi.io](https://ratesapi.io/) does not provide a free HTTPS account.
+- Only `rates` and `currencies` APIs have been used and the calaculation of the rate conversion is being done within the application.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Features Implemented
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- User can select the `source` and `target` currency.
+- Conversion will be done on the fly once amount has been input in the `source`.
+- target`amount field is disabled always and it's value is calculated from`source` amount.
+- User can change `amount`, `source`,`currency, `target` currency and the conversion will be re-calculated according to the new values.
+- Currencies can be swapped with button click - `source` becomes `target` and `target` becomes `source` and amount is recalculated accordingly.
+- Multiple instances of currency converter can be `created` and `deleted` and there is no dependency between each instance.
+- Currency convertion has been included upto `2` decimal points.
+- Semantic HTML has been implemented and the entire UI can be navigated through keyboard.
+- Accessiblity in terms of `A11y` and `i18n` has been implemented.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Technology Stack
 
-### `yarn eject`
+- React with hooks has been used.
+- For state mnagement within the applicaiton, React hooks `useReducer` and `useContext` have been used.
+- `styled components` has been used for styling the components.
+- For unit testing, `React Testing Library` has been used.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## State and its varaibles
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+state = {
+  date: '',
+  countries: [],
+  rates: {},
+  exchange: [],
+  status: 'loading',
+};
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- `date` - Hold the date for which the following convertions are being done.
+- `countries` - Hold the list of countries where convertion can be done. Each country object is as follows
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```
+{
+    code: "AED"
+    id: "784"
+    name: "United Arab Emirates dirham - AED"
+}
+```
 
-## Learn More
+- `rates` - Holds all the convertion values with respect to `EUR`.`rates` object is as follows
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
+{
+    AED: 4.354257
+    USD: 1.185597
+    INR: 88.273824
+}
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- `exchange` - Holds list of objects, wherein each object refers to a single instace of `currency converter`.Each `exchange` object is as follows
 
-### Code Splitting
+```
+{
+    fromAmount: 0
+    fromCurrency: "EUR"
+    id: "EUR-USD-0"
+    toAmount: 0
+    toCurrency: "USD"
+}
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- `status` - Holds `4` diffrent values - `idle`, `loading`, `fetching`, `error`
 
-### Analyzing the Bundle Size
+##Termiology while reading the code
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- `fromCurrency` - The currency from which the conversation has to happen.
+- `fromAmount` - The amount that needs to be transferred.
+- `toCurrency` - The currency to which the convertion has to happen.
+- `toAmount` - Amount that has been converted to.
 
-### Making a Progressive Web App
+## Testing
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Entire application has been unit tested and has 90% code coverage.
+- Snapshot tests used to quickly find any changes in generated HTML.
+  -Ideally, Integration tests should be written to verify the workflow. But since there are only a couple of API calls, I feel RoI would be very less. Subject to discussion.
