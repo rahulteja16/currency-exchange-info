@@ -85,27 +85,23 @@ describe('Currency Converter Component', () => {
     expect(targetAmount).toBeDisabled();
   });
 
-  test('Calculate Excahnge Value', async () => {
+  test('Calculate Excahnge Value', () => {
     renderCurrencyConverter(defaultState, defaultProps);
 
-    try {
-      await userEvent.selectOptions(screen.getByTestId('selectFrom'), ['GBP']);
-      expect(await screen.getByTestId('From-GBP').value).toBe('GBP');
+    userEvent.selectOptions(screen.getByTestId('selectFrom'), ['GBP']);
+    expect(screen.getByTestId('From-GBP').value).toBe('GBP');
 
-      await userEvent.selectOptions(screen.getByTestId('selectTo'), ['INR']);
-      expect(await screen.getByTestId('To-INR').value).toBe('INR');
+    userEvent.selectOptions(screen.getByTestId('selectTo'), ['INR']);
+    expect(screen.getByTestId('To-INR').value).toBe('INR');
 
-      expect(await screen.getByTestId('sourceAmount').value).toBe('1');
-      expect(await screen.getByTestId('targetAmount').value).toBe('102.67');
+    expect(screen.getByTestId('sourceAmount').value).toBe('1');
+    expect(screen.getByTestId('targetAmount').value).toBe('102.67');
 
-      userEvent.type(screen.getByTestId('sourceAmount'), 20);
-      fireEvent.change(screen.getByTestId('sourceAmount'), { target: { value: '13' } });
+    userEvent.type(screen.getByTestId('sourceAmount'), 20);
+    fireEvent.change(screen.getByTestId('sourceAmount'), { target: { value: '13' } });
 
-      expect(await screen.getByTestId('sourceAmount').value).toBe('13');
-      expect(await screen.getByTestId('targetAmount').value).toBe('1334.73');
-    } catch (err) {
-      expect(err).toEqual(new Error());
-    }
+    expect(screen.getByTestId('sourceAmount').value).toBe('13');
+    expect(screen.getByTestId('targetAmount').value).toBe('1334.73');
   });
 
   test('Add  Currency Converter', () => {

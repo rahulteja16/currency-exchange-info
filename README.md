@@ -102,6 +102,6 @@ state = {
 
 ## Testing
 
-- Entire application has been unit tested and has 90% code coverage.
-- Snapshot tests used to quickly find any changes in generated HTML.
-  -Ideally, Integration tests should be written to verify the workflow. But since there are only a couple of API calls, I feel RoI would be very less. Subject to discussion.
+- Entire application has been unit tested and has 90% code coverage using `React Testing Library`.
+- API testing is not done here as its generally done as a part of integartion testing with the help of `Cypress`.
+- Ideally, Integration tests should be written to verify the workflow. But since there are only a couple of API calls, I feel RoI would be very less. Subject to discussion.
