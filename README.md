@@ -30,8 +30,8 @@ yarn test -- --coverage
 
 - User can select the `source` and `target` currency.
 - Conversion will be done on the fly once amount has been input in the `source`.
-- target`amount field is disabled always and it's value is calculated from`source` amount.
-- User can change `amount`, `source`,`currency, `target` currency and the conversion will be re-calculated according to the new values.
+- target`amount` field is disabled always and it's value is calculated from`source` amount.
+- User can change `amount`, `source`,`target`, target currency and the conversion will be re-calculated according to the new values.
 - Currencies can be swapped with button click - `source` becomes `target` and `target` becomes `source` and amount is recalculated accordingly.
 - Multiple instances of currency converter can be `created` and `deleted` and there is no dependency between each instance.
 - Currency convertion has been included upto `2` decimal points.
@@ -41,7 +41,7 @@ yarn test -- --coverage
 ## Technology Stack
 
 - React with hooks has been used.
-- For state mnagement within the applicaiton, React hooks `useReducer` and `useContext` have been used.
+- For state management within the applicaiton, React hooks `useReducer` and `useContext` have been used.
 - `styled components` has been used for styling the components.
 - For unit testing, `React Testing Library` has been used.
 
@@ -92,7 +92,7 @@ state = {
 
 - `status` - Holds `4` diffrent values - `idle`, `loading`, `fetching`, `error`
 
-##Termiology while reading the code
+## Termiology while reading the code
 
 - `fromCurrency` - The currency from which the conversation has to happen.
 - `fromAmount` - The amount that needs to be transferred.

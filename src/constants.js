@@ -9,11 +9,11 @@ export const BASE_TO_CUR = 'USD';
 
 export const ARIA = {
   date: 'Date for Conversion',
-  fromCurrency: 'Convert From Currency',
-  toCurrency: 'Convert To Currency',
-  sourceAmount: 'Enter Source Amount',
-  targetAmount: 'Enter Source Amount',
-  exchange: 'Exchange',
+  fromCurrency: 'Convert From Currency Field',
+  toCurrency: 'Convert To Currency Field',
+  sourceAmount: 'Source Amount Field',
+  targetAmount: 'Target Amount Field',
+  exchange: 'Exchange Button',
 };
 
 export const CONVERTER = {

@@ -25,7 +25,7 @@ export const currencyExchangeReducer = (state, action) => {
         ...{},
         ...currencyExchangeInitialState,
         ...state.currencyExchange,
-        exchange: action.payload.exchange,
+        ...action.payload,
       };
       return { ...state, currencyExchange: newState };
     }
@@ -44,15 +44,14 @@ export const currencyExchangeReducer = (state, action) => {
         ...currencyExchangeInitialState,
         ...state.currencyExchange,
       };
-      const { idx, exchangeObj } = action.payload;
-      newState.exchange.forEach((item) => {
-        if (item.id === idx) {
-          item.fromCurrency = exchangeObj.fromCurrency;
-          item.fromAmount = exchangeObj.fromAmount;
-          item.toAmount = exchangeObj.toAmount;
-          item.toCurrency = exchangeObj.toCurrency;
+      const { exchangeObj } = action.payload;
+      const updatedExchange = newState.exchange.map((item) => {
+        if (item.id === exchangeObj.id) {
+          item = { ...exchangeObj };
         }
+        return item;
       });
+      newState.exchange = [...updatedExchange];
       return { ...state, currencyExchange: newState };
     }
     case CurrencyTypes.LOADING: {
@@ -98,10 +97,11 @@ export const currencyExchangeReducer = (state, action) => {
       newState.exchange = [
         {
           id: `${BASE_CUR}-${BASE_TO_CUR}-0`,
-          fromCurrency: BASE_CUR,
-          fromAmount: 0,
-          toCurrency: BASE_TO_CUR,
-          toAmount: 0,
+          selectedFromCurrency: BASE_CUR,
+          selectedFromAmount: 1,
+          selectedToCurrency: BASE_TO_CUR,
+          selectedToAmount: parseFloat(newState.rates[BASE_TO_CUR]).toFixed(2),
+          showAdd: true,
         },
       ];
       return { ...state, currencyExchange: newState };

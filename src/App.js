@@ -1,12 +1,12 @@
 import GlobalStyles from './GlobalStyles';
 import React from 'react';
-import Skelton from './Skelton';
+import Container from './Container';
 import { StoreProvider } from './store';
 
 const App = () => (
   <StoreProvider>
     <GlobalStyles />
-    <Skelton />
+    <Container />
   </StoreProvider>
 );
 

@@ -30,15 +30,21 @@ const SelectWrapper = styled.select`
 const CustomDropDown = ({ label, items, keyVal, selectedValue, onSelect }) => (
   <Wrapper>
     <LabelWrapper htmlFor={keyVal}>{label}</LabelWrapper>
-    <SelectWrapper name={keyVal} onChange={onSelect} value={selectedValue}>
+    <SelectWrapper
+      name={keyVal}
+      onChange={onSelect}
+      value={selectedValue}
+      data-testid={`select${label}`}
+    >
       <option key="default" disabled>
         Please Select
       </option>
       {items.map((item) => (
-        <option key={item.key} value={item.key}>
-          {item.value}
+        <option key={item.id} value={item.code} data-testid={`${label}-${item.code}`}>
+          {item.name}
         </option>
       ))}
+      x
     </SelectWrapper>
   </Wrapper>
 );
@@ -52,8 +58,8 @@ CustomDropDown.propTypes = {
       value: PropTypes.string,
     })
   ).isRequired,
-  selectedValue: PropTypes.string,
-  onSelect: PropTypes.func,
+  selectedValue: PropTypes.string.isRequired,
+  onSelect: PropTypes.func.isRequired,
 };
 
 export default CustomDropDown;

@@ -73,10 +73,11 @@ const Skelton = () => {
               exchange: [
                 {
                   id: `${BASE_CUR}-${BASE_TO_CUR}-0`,
-                  fromCurrency: BASE_CUR,
-                  fromAmount: 0,
-                  toCurrency: BASE_TO_CUR,
-                  toAmount: 0,
+                  selectedFromCurrency: BASE_CUR,
+                  selectedFromAmount: 1,
+                  selectedToCurrency: BASE_TO_CUR,
+                  selectedToAmount: parseFloat(rates[BASE_TO_CUR]).toFixed(2),
+                  showAdd: true,
                 },
               ],
               status: STATUS.IDLE,

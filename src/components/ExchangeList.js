@@ -1,22 +1,22 @@
+import React, { useContext } from 'react';
+import styled from 'styled-components';
+
 import {
   API_KEY,
   ARIA,
   BASE_CUR,
-  BASE_TO_CUR,
   ERROR_MESSAGE,
   MAIN_HEADING,
   RATES_URL,
   STATUS,
 } from '../constants';
-import React, { useContext } from 'react';
+import { CurrencyTypes } from '../types';
+
+import { Store } from '../store';
 
 import CurrencyConverter from './CurrencyCoverter';
-import { CurrencyTypes } from '../types';
 import Header from './Header';
 import { Loader } from './Loader';
-import PropTypes from 'prop-types';
-import { Store } from '../store';
-import styled from 'styled-components';
 
 const DatePicker = styled.input`
   height: 30px;
@@ -63,25 +63,10 @@ const Error = styled.div`
 const ExchangeList = () => {
   const {
     state: {
-      currencyExchange: { date, rates, exchange, status, countries },
+      currencyExchange: { date, exchange, status, countries },
     },
     dispatch,
   } = useContext(Store);
-
-  const onExchange = (index, exchangeObj) => {
-    const currencyBase = rates[exchangeObj.fromCurrency];
-    const inEuros = parseFloat(exchangeObj.fromAmount) / currencyBase;
-    const finalObj = { ...exchangeObj };
-    finalObj['toAmount'] = inEuros * rates[exchangeObj.toCurrency];
-
-    dispatch({
-      type: CurrencyTypes.UPDATE_EXCHANGE,
-      payload: {
-        exchangeObj: finalObj,
-        idx: index,
-      },
-    });
-  };
 
   const onUpdateDate = async (e) => {
     const date = e.target.value;
@@ -114,56 +99,18 @@ const ExchangeList = () => {
     });
   };
 
-  const onAddExchange = () => {
-    const currentExchange = [...exchange];
-    currentExchange.push({
-      id: `${BASE_CUR}-${BASE_TO_CUR}-${currentExchange.length}`,
-      fromCurrency: BASE_CUR,
-      fromAmount: 0,
-      toCurrency: BASE_TO_CUR,
-      toAmount: 0,
-    });
-    dispatch({
-      type: CurrencyTypes.ADD_EXCHANGE,
-      payload: {
-        exchange: currentExchange,
-      },
-    });
-  };
-
-  const onDeleteExchange = (idx) => {
-    const currentExchange = [...exchange];
-    currentExchange.splice(idx, 1);
-    dispatch({
-      type: CurrencyTypes.DELETE_EXCHANGE,
-      payload: {
-        exchange: currentExchange,
-      },
-    });
-  };
-
-  const updatedCountries = [];
-  countries.forEach((country) => {
-    let obj = {
-      key: country.code,
-      value: country.name,
-      id: country.id,
-    };
-    updatedCountries.push(obj);
-  });
-
   return (
     <MainWrapper>
       <Header />
       {status === STATUS.LOADING && (
         <CenterWrapper>
-          <Loader />
+          <Loader data-testid="loading" />
         </CenterWrapper>
       )}
 
       {status === STATUS.ERROR && (
         <CenterWrapper>
-          <Error>{ERROR_MESSAGE}</Error>
+          <Error data-testid="error">{ERROR_MESSAGE}</Error>
         </CenterWrapper>
       )}
 
@@ -176,19 +123,10 @@ const ExchangeList = () => {
             onChange={onUpdateDate}
             max={date}
             aria-label={ARIA.date}
+            data-testid="date"
           />
           {exchange.map((item) => {
-            return (
-              <CurrencyConverter
-                key={item.id}
-                selectedCountries={updatedCountries}
-                exchangeObj={item}
-                idx={item.id}
-                onExchangeClick={onExchange}
-                onAddExchange={onAddExchange}
-                onDeleteExchange={onDeleteExchange}
-              />
-            );
+            return <CurrencyConverter key={item.id} exchangeObj={item} idx={item.id} />;
           })}
         </Section>
       )}
@@ -197,34 +135,12 @@ const ExchangeList = () => {
         <Section>
           <H2Title>{MAIN_HEADING}</H2Title>
           <CenterWrapper>
-            <Loader />
+            <Loader data-testid="updating" />
           </CenterWrapper>
         </Section>
       )}
     </MainWrapper>
   );
-};
-
-ExchangeList.propTypes = {
-  date: PropTypes.string,
-  status: PropTypes.string,
-  countries: PropTypes.arrayOf(
-    PropTypes.shape({
-      code: PropTypes.string.isRequired,
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-    })
-  ),
-  exchange: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      fromCurrency: PropTypes.string.isRequired,
-      fromAmount: PropTypes.number.isRequired,
-      toCurrency: PropTypes.string.isRequired,
-      toAmount: PropTypes.number.isRequired,
-    })
-  ),
-  rates: PropTypes.objectOf(PropTypes.number),
 };
 
 export default ExchangeList;
