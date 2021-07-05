@@ -3,6 +3,7 @@ export const COUNTRIES_URL = `https://swop.cx/rest/currencies`;
 export const RATES_URL = `https://swop.cx/rest/rates?`;
 
 export const MAIN_HEADING = 'Currency Converter';
+export const INFO = ' Exchange values are rounded to 2 decimals.';
 export const ERROR_MESSAGE = 'Some Error has occured. Please try after sometime.';
 export const BASE_CUR = 'EUR';
 export const BASE_TO_CUR = 'USD';

@@ -82,11 +82,12 @@ state = {
 
 ```
 {
-    fromAmount: 0
-    fromCurrency: "EUR"
-    id: "EUR-USD-0"
-    toAmount: 0
-    toCurrency: "USD"
+    id: 'EUR-USD-0',
+    selectedFromCurrency: "EUR",
+    selectedFromAmount: 0,
+    selectedToAmount: 0
+    selectedToCurrency: "USD",
+    showAdd: true
 }
 ```
 
@@ -94,10 +95,10 @@ state = {
 
 ## Termiology while reading the code
 
-- `fromCurrency` - The currency from which the conversation has to happen.
-- `fromAmount` - The amount that needs to be transferred.
-- `toCurrency` - The currency to which the convertion has to happen.
-- `toAmount` - Amount that has been converted to.
+- `selectedFromCurrency` - The currency from which the conversation has to happen.
+- `selectedFromAmount` - The amount that needs to be transferred.
+- `selectedToCurrency` - The currency to which the convertion has to happen.
+- `selectedToAmount` - Amount that has been converted to.
 
 ## Testing
 

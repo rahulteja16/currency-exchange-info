@@ -59,7 +59,7 @@ describe('Currency Converter Component', () => {
     expect(date).toHaveAttribute('type', 'date');
   });
 
-  test('Should rerender on date change', async () => {
+  test('Should rerender on date change', () => {
     renderExchangeList(defaultState);
     userEvent.type(screen.getByTestId('date'), '2021-06-28');
     expect(screen.getByTestId('updating')).toBeInTheDocument();

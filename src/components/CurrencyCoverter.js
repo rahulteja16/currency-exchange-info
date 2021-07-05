@@ -145,8 +145,13 @@ const CurrencyConverter = ({ idx }) => {
   };
 
   const validateAmount = (e) => {
+    const val = e.target.value
+      .toString()
+      .split('.')
+      .map((el, i) => (i ? el.split('').slice(0, 2).join('') : el))
+      .join('.');
     const obj = { ...exchangeObj };
-    obj.selectedFromAmount = parseFloat(e.target.value);
+    obj.selectedFromAmount = parseFloat(val);
     calculateConversion(obj, dispatch, rates);
   };
 

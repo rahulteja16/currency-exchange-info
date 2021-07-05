@@ -6,6 +6,7 @@ import {
   ARIA,
   BASE_CUR,
   ERROR_MESSAGE,
+  INFO,
   MAIN_HEADING,
   RATES_URL,
   STATUS,
@@ -17,6 +18,8 @@ import { Store } from '../store';
 import CurrencyConverter from './CurrencyCoverter';
 import Header from './Header';
 import { Loader } from './Loader';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 const DatePicker = styled.input`
   height: 30px;
@@ -35,6 +38,12 @@ const DatePicker = styled.input`
 const H2Title = styled.h2`
   color: #3a4450;
   letter-spacing: 0.2px;
+`;
+
+const H6Title = styled.h6`
+  color: #3a4450;
+  letter-spacing: 0.2px;
+  margin-top: 2px;
 `;
 
 const MainWrapper = styled.main`
@@ -76,27 +85,33 @@ const ExchangeList = () => {
     const symbols = [];
     countries.map((country) => symbols.push(country.code));
 
-    const conversionRes = await fetch(
-      `${RATES_URL}date=${date}&base_currency=${BASE_CUR}&quote_currencies=${symbols.join()}`,
-      {
-        headers: {
-          Authorization: `ApiKey ${API_KEY}`,
-        },
+    try {
+      const conversionRes = await fetch(
+        `${RATES_URL}date=${date}&base_currency=${BASE_CUR}&quote_currencies=${symbols.join()}`,
+        {
+          headers: {
+            Authorization: `ApiKey ${API_KEY}`,
+          },
+        }
+      );
+      const conversionData = await conversionRes.json();
+      const rates = {};
+      for (let conv in conversionData) {
+        rates[conversionData[conv].quote_currency] = conversionData[conv].quote;
       }
-    );
-    const conversionData = await conversionRes.json();
-    const rates = {};
-    for (let conv in conversionData) {
-      rates[conversionData[conv].quote_currency] = conversionData[conv].quote;
+      rates[conversionData[0].base_currency] = 1;
+      dispatch({
+        type: CurrencyTypes.UPDATE_EXCHANGE_DATE,
+        payload: {
+          rates,
+          date: conversionData[0].date,
+        },
+      });
+    } catch (err) {
+      dispatch({
+        type: CurrencyTypes.ERROR,
+      });
     }
-    rates[conversionData[0].base_currency] = 1;
-    dispatch({
-      type: CurrencyTypes.UPDATE_EXCHANGE_DATE,
-      payload: {
-        rates,
-        date: conversionData[0].date,
-      },
-    });
   };
 
   return (
@@ -117,6 +132,9 @@ const ExchangeList = () => {
       {status === STATUS.IDLE && (
         <Section>
           <H2Title>{MAIN_HEADING}</H2Title>
+          <H6Title>
+            <FontAwesomeIcon icon={faInfoCircle} /> {INFO}
+          </H6Title>
           <DatePicker
             type="date"
             value={date}
